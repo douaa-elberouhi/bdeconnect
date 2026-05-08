@@ -15,8 +15,11 @@ return new class extends Migration
             $table->foreignId('evenement_id')
                   ->constrained('evenements')
                   ->onDelete('cascade');
-            $table->enum('statut', ['confirmée', 'liste_attente', 'annulée'])
-                  ->default('confirmée');
+            $table->enum('statut', [
+    'confirmee',
+    'liste_attente',
+    'annulee'
+]);
             $table->timestamp('date_inscription')->useCurrent();
             $table->timestamps();
             $table->unique(['user_id', 'evenement_id']);
