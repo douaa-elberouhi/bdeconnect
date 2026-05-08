@@ -77,4 +77,4 @@ Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) 
     $event = \App\Models\Evenement::findOrFail($eventId);
 
     return $service->inscrire($user, $event);
-});`
+});
