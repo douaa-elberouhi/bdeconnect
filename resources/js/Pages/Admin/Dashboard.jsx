@@ -43,9 +43,8 @@ export default function Dashboard({ stats, graphique }) {
                     Tableau de bord
                 </h1>
                 
-                    href="/admin/export-csv"
-                    className="bg-[#dc2626] text-white px-5 py-2 rounded-lg
-                               hover:bg-red-700 transition font-semibold"
+                    <a href="/admin/export-csv"
+                    className="bg-[#dc2626] text-white px-5 py-2 rounded-lg hover:bg-red-700 transition font-semibold"
                 >
                     📥 Exporter CSV
                 </a>
@@ -92,8 +91,7 @@ function CarteStats({ icone, titre, valeur, couleur, petit = false }) {
         <div className={`${couleur} rounded-xl shadow p-5 flex flex-col items-center`}>
             <span className="text-4xl mb-2">{icone}</span>
             <p className="text-gray-500 text-sm text-center">{titre}</p>
-            <p className={`font-bold text-[#1e3a5f] text-center mt-1
-                          ${petit ? 'text-base' : 'text-3xl'}`}>
+            <p className={`font-bold text-[#1e3a5f] text-center mt-1 ${petit ? 'text-base' : 'text-3xl'}`}>
                 {valeur}
             </p>
         </div>
