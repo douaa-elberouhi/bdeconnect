@@ -9,6 +9,7 @@ use App\Http\Controllers\InscriptionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\EtudiantController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -77,4 +78,13 @@ Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) 
     $event = \App\Models\Evenement::findOrFail($eventId);
 
     return $service->inscrire($user, $event);
-});`
+});
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/calendrier', [EtudiantController::class, 'calendrier'])
+        ->name('etudiant.calendrier');
+
+    Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])
+        ->name('etudiant.inscriptions');
+});
