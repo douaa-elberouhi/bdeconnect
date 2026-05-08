@@ -9,11 +9,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-/*
-|--------------------------------------------------------------------------
-| Welcome
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -24,21 +19,9 @@ Route::get('/', function () {
     ]);
 });
 
-/*
-|--------------------------------------------------------------------------
-| Dashboard
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-/*
-|--------------------------------------------------------------------------
-| Profile
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware('auth')->group(function () {
 
@@ -51,11 +34,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Étudiant
-    |--------------------------------------------------------------------------
-    */
 
     Route::get('/calendrier', [EtudiantController::class, 'calendrier'])
         ->name('etudiant.calendrier');
@@ -63,11 +41,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])
         ->name('etudiant.inscriptions');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Inscriptions
-    |--------------------------------------------------------------------------
-    */
 
     Route::post('/inscriptions/{evenement}', [InscriptionController::class, 'store'])
         ->name('inscriptions.store');
@@ -76,11 +49,7 @@ Route::middleware('auth')->group(function () {
     ->name('inscriptions.destroy');
 });
 
-/*
-|--------------------------------------------------------------------------
-| TEST ROUTES
-|--------------------------------------------------------------------------
-*/
+
 
 Route::get('/voir-inscriptions', function () {
     return Inscription::all();
@@ -115,16 +84,16 @@ Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) 
 Route::get('/create-event-test', function () {
 
     \App\Models\Evenement::create([
-        'titre' => 'Soirée BDE',
-        'description' => 'Grande soirée étudiante',
-        'date_debut' => '2026-05-10 18:00:00',
-        'date_fin' => '2026-05-10 23:00:00',
-        'capacite_max' => 50,
-        'prix' => 100,
+        'titre' => 'Test RG3',
+        'description' => 'Test liste attente',
+        'date_debut' => '2026-05-15 18:00:00',
+        'date_fin' => '2026-05-15 23:00:00',
+        'capacite_max' => 1,
+        'prix' => 0,
         'statut' => 'actif'
     ]);
 
-    return "Événement créé avec succès";
+    return "Event test créé";
 });
 
 require __DIR__.'/auth.php';
