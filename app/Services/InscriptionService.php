@@ -8,50 +8,59 @@ use App\Models\Inscription;
 
 class InscriptionService
 {
+    // Inscription étudiant
     public function inscrire(User $user, Evenement $event)
-{
-    // RG2: check deja inscrit
-    $exist = Inscription::where('user_id', $user->id)
-        ->where('evenement_id', $event->id)
-        ->first();
-
-    if ($exist) {
-        return "Deja inscrit";
-    }
-
-    // RG1: capacity check
-    $countConfirmed = Inscription::where('evenement_id', $event->id)
-        ->where('statut', 'confirmee')
-        ->count();
-
-    $status = ($countConfirmed < $event->capacite_max)
-        ? "confirmee"
-        : "liste_attente";
-
-    Inscription::create([
-        'user_id' => $user->id,
-        'evenement_id' => $event->id,
-        'statut' => $status
-    ]);
-
-    return $status;
-}
-    public function annuler($id)
     {
-        $inscription = Inscription::findOrFail($id);
-
-        $inscription->statut = "annulee";
-        $inscription->save();
-
-        $next = Inscription::where('evenement_id', $inscription->evenement_id)
-            ->where('statut', 'liste_attente')
+        // RG2 : déjà inscrit
+        $exist = Inscription::where('user_id', $user->id)
+            ->where('evenement_id', $event->id)
             ->first();
 
-        if ($next) {
-            $next->statut = "confirmee";
-            $next->save();
+        if ($exist) {
+            throw new \Exception("Vous êtes déjà inscrit");
         }
 
-        return "Annulation effectuée";
+        // RG1 : vérifier capacité
+        $countConfirmed = Inscription::where('evenement_id', $event->id)
+            ->where('statut', 'confirmee')
+            ->count();
+
+        $status = ($countConfirmed < $event->capacite_max)
+            ? 'confirmee'
+            : 'liste_attente';
+
+        // création inscription
+        $inscription = Inscription::create([
+            'user_id' => $user->id,
+            'evenement_id' => $event->id,
+            'statut' => $status,
+            'date_inscription' => now(),
+        ]);
+
+        return $inscription;
     }
+
+    // Annulation inscription
+    public function annuler(Inscription $inscription)
+{
+    // Annuler inscription actuelle
+    $inscription->update([
+        'statut' => 'annulee'
+    ]);
+
+    // Chercher premier en liste d'attente
+    $next = Inscription::where('evenement_id', $inscription->evenement_id)
+        ->where('statut', 'liste_attente')
+        ->orderBy('date_inscription', 'asc')
+        ->first();
+
+    // Promotion automatique
+    if ($next) {
+        $next->update([
+            'statut' => 'confirmee'
+        ]);
+    }
+
+    return true;
+}
 }

@@ -1,108 +1,109 @@
-import React from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head, router } from '@inertiajs/react';
 
-export default function MesInscriptions({ inscriptions }) {
+function StatutBadge({ statut }) {
 
-    const annuler = (id) => {
-
-        if (confirm("Voulez-vous annuler cette inscription ?")) {
-            router.delete(`/inscriptions/${id}`);
-        }
+    const styles = {
+        'confirmee': 'bg-green-100 text-green-700',
+        'liste_attente': 'bg-orange-100 text-orange-700',
+        'annulee': 'bg-red-100 text-red-600',
     };
 
-    const badgeColor = (statut) => {
+    const labels = {
+        'confirmee': '✅ Confirmée',
+        'liste_attente': "⏳ Liste d'attente",
+        'annulee': '❌ Annulée',
+    };
 
-        switch (statut) {
+    return (
+        <span
+            className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[statut]}`}
+        >
+            {labels[statut]}
+        </span>
+    );
+}
 
-            case "confirmée":
-                return "bg-green-500";
+export default function MesInscriptions({ inscriptions }) {
+    const handleAnnuler = (id) => {
+        if (confirm('Voulez-vous vraiment annuler ?')) {
+          router.delete(`/inscriptions/${id}`, {
+    preserveScroll: true,
 
-            case "liste_attente":
-                return "bg-orange-500";
+    onSuccess: () => {
+        router.reload();
+    },
 
-            case "annulée":
-                return "bg-red-500";
-
-            default:
-                return "bg-gray-500";
+    onError: (errors) => {
+        console.log(errors);
+    }
+});
         }
     };
 
     return (
         <>
-            <Head title="Mes Inscriptions" />
+            <Head title="Mes inscriptions" />
+            <div className="min-h-screen bg-gray-50">
+                <nav className="bg-[#1e3a5f] text-white px-6 py-4 flex justify-between items-center">
+                    <h1 className="text-xl font-bold">🎓 BDEConnect</h1>
+                    <div className="flex gap-4 text-sm">
+                        <a href="/calendrier" className="hover:underline">Calendrier</a>
+                        <a href="/mes-inscriptions" className="font-semibold underline">Mes inscriptions</a>
+                    </div>
+                </nav>
+                <div className="max-w-4xl mx-auto px-4 py-8">
+                    <h2 className="text-2xl font-bold text-[#1e3a5f] mb-6">📋 Mes inscriptions</h2>
 
-            <div className="min-h-screen bg-gray-100 p-6">
+                    {inscriptions.length === 0 ? (
+                        <div className="text-center py-20 text-gray-400">
+                            <p className="text-5xl mb-4">📭</p>
+                            <p>Aucune inscription.</p>
+                            <a href="/calendrier" className="mt-4 inline-block text-[#1e3a5f] underline">Voir les événements →</a>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-2xl shadow overflow-hidden">
+                            <table className="w-full text-sm">
+                                <thead className="bg-[#1e3a5f] text-white">
+                                    <tr>
+                                        <th className="text-left px-6 py-3">Événement</th>
+                                        <th className="text-left px-6 py-3">Date inscription</th>
+                                        <th className="text-left px-6 py-3">Statut</th>
+                                        <th className="text-left px-6 py-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+    {inscriptions.map(ins => (
+        <tr key={ins.id} className="hover:bg-gray-50">
+            <td className="px-6 py-4 font-medium">
+                {ins.evenement?.titre}
+            </td>
 
-                <h1 className="text-3xl font-bold text-[#1e3a5f] mb-6">
-                    Mes inscriptions
-                </h1>
+            <td className="px-6 py-4 text-gray-500">
+                {new Date(ins.created_at).toLocaleDateString('fr-FR')}
+            </td>
 
-                <div className="overflow-x-auto bg-white rounded-2xl shadow-lg">
+            <td className="px-6 py-4">
+                <StatutBadge statut={ins.statut} />
+            </td>
 
-                    <table className="w-full">
-
-                        <thead className="bg-[#1e3a5f] text-white">
-
-                            <tr>
-                                <th className="p-4 text-left">Événement</th>
-                                <th className="p-4 text-left">Date inscription</th>
-                                <th className="p-4 text-left">Statut</th>
-                                <th className="p-4 text-left">Action</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            {inscriptions.map((inscription) => (
-
-                                <tr
-                                    key={inscription.id}
-                                    className="border-b"
-                                >
-
-                                    <td className="p-4">
-                                        {inscription.evenement.titre}
-                                    </td>
-
-                                    <td className="p-4">
-                                        {inscription.date_inscription}
-                                    </td>
-
-                                    <td className="p-4">
-
-                                        <span
-                                            className={`${badgeColor(inscription.statut)} text-white px-3 py-1 rounded-full text-sm`}
-                                        >
-                                            {inscription.statut}
-                                        </span>
-
-                                    </td>
-
-                                    <td className="p-4">
-
-                                        {(inscription.statut === "confirmée" ||
-                                            inscription.statut === "liste_attente") && (
-
-                                            <button
-                                                onClick={() => annuler(inscription.id)}
-                                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-                                            >
-                                                Annuler
-                                            </button>
-
-                                        )}
-
-                                    </td>
-
-                                </tr>
-                            ))}
-
-                        </tbody>
-
-                    </table>
-
+            <td className="px-6 py-4">
+                {ins.statut !== 'annulee' ? (
+                    <button
+                        onClick={() => handleAnnuler(ins.id)}
+                        className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium"
+                    >
+                        Annuler
+                    </button>
+                ) : (
+                    <span className="text-gray-300">—</span>
+                )}
+            </td>
+        </tr>
+    ))}
+</tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
         </>

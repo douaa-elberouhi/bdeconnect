@@ -1,15 +1,19 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\EtudiantController;
 use App\Services\InscriptionService;
 use App\Models\Inscription;
-use App\Models\Evenement;
-use App\Models\User;
-use App\Http\Controllers\InscriptionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\EtudiantController;
+
+/*
+|--------------------------------------------------------------------------
+| Welcome
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -20,20 +24,68 @@ Route::get('/', function () {
     ]);
 });
 
+/*
+|--------------------------------------------------------------------------
+| Dashboard
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+/*
+|--------------------------------------------------------------------------
+| Profile
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Étudiant
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/calendrier', [EtudiantController::class, 'calendrier'])
+        ->name('etudiant.calendrier');
+
+    Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])
+        ->name('etudiant.inscriptions');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Inscriptions
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/inscriptions/{evenement}', [InscriptionController::class, 'store'])
+        ->name('inscriptions.store');
+
+    Route::delete('/inscriptions/{inscription}', [InscriptionController::class, 'destroy'])
+    ->name('inscriptions.destroy');
 });
 
-require __DIR__.'/auth.php';
+/*
+|--------------------------------------------------------------------------
+| TEST ROUTES
+|--------------------------------------------------------------------------
+*/
 
-Route::post('/inscription/{eventId}', [InscriptionController::class, 'store']);
-Route::delete('/inscription/{id}', [InscriptionController::class, 'destroy']);
+Route::get('/voir-inscriptions', function () {
+    return Inscription::all();
+});
+
 Route::get('/test-annulation/{id}', function ($id) {
 
     $service = new InscriptionService();
@@ -43,23 +95,11 @@ Route::get('/test-annulation/{id}', function ($id) {
     return "Annulation effectuée";
 });
 
-Route::get('/voir-inscriptions', function () {
-
-    return Inscription::all();
-});
-Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) {
-
-    $service = new \App\Services\InscriptionService();
-
-    $user = \App\Models\User::findOrFail($userId);
-    $event = \App\Models\Evenement::findOrFail($eventId);
-
-    return $service->inscrire($user, $event);
-});
 Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) {
 
     try {
-        $service = new \App\Services\InscriptionService();
+
+        $service = new InscriptionService();
 
         $user = \App\Models\User::findOrFail($userId);
         $event = \App\Models\Evenement::findOrFail($eventId);
@@ -67,24 +107,24 @@ Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) 
         return $service->inscrire($user, $event);
 
     } catch (\Throwable $e) {
+
         return $e->getMessage();
     }
 });
-Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) {
 
-    $service = new \App\Services\InscriptionService();
+Route::get('/create-event-test', function () {
 
-    $user = \App\Models\User::findOrFail($userId);
-    $event = \App\Models\Evenement::findOrFail($eventId);
+    \App\Models\Evenement::create([
+        'titre' => 'Soirée BDE',
+        'description' => 'Grande soirée étudiante',
+        'date_debut' => '2026-05-10 18:00:00',
+        'date_fin' => '2026-05-10 23:00:00',
+        'capacite_max' => 50,
+        'prix' => 100,
+        'statut' => 'actif'
+    ]);
 
-    return $service->inscrire($user, $event);
+    return "Événement créé avec succès";
 });
 
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/calendrier', [EtudiantController::class, 'calendrier'])
-        ->name('etudiant.calendrier');
-
-    Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])
-        ->name('etudiant.inscriptions');
-});
+require __DIR__.'/auth.php';

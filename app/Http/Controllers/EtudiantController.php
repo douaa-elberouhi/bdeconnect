@@ -19,10 +19,11 @@ class EtudiantController extends Controller
             ->where('statut', 'actif')
             ->withCount([
                 'inscriptions as inscriptions_confirmees_count' => function ($query) {
-                    $query->where('statut', 'confirmée');
+                    $query->where('statut', 'confirmee');
                 }
             ])
             ->get()
+
             ->map(function ($event) use ($user) {
 
                 $dejaInscrit = false;
