@@ -1,101 +1,80 @@
 import React from 'react';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-} from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function Dashboard({ stats, graphique }) {
-
-    const chartData = {
+    const data = {
         labels: graphique.map(item => item.evenement),
         datasets: [{
-            label: 'Inscrits confirmés',
+            label: 'Inscrits confirmes',
             data: graphique.map(item => item.inscrits),
             backgroundColor: '#1e3a5f',
             borderRadius: 6,
         }]
     };
 
-    const chartOptions = {
+    const options = {
         responsive: true,
         plugins: {
             legend: { position: 'top' },
-            title: {
-                display: true,
-                text: 'Inscriptions par événement'
-            }
+            title: { display: true, text: 'Inscriptions par evenement' }
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
+        <div style={{padding:'30px', background:'#f3f4f6', minHeight:'100vh', fontFamily:'Arial'}}>
 
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-[#1e3a5f]">
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'30px'}}>
+                <h1 style={{color:'#1e3a5f', fontSize:'32px', fontWeight:'bold', margin:0}}>
                     Tableau de bord
                 </h1>
-                
-                    href="/admin/export-csv"
-                    className="bg-[#dc2626] text-white px-5 py-2 rounded-lg
-                               hover:bg-red-700 transition font-semibold"
-                >
-                    📥 Exporter CSV
+                <a href="/admin/export-csv" style={{
+                    background:'#dc2626',
+                    color:'white',
+                    padding:'10px 20px',
+                    borderRadius:'8px',
+                    textDecoration:'none',
+                    fontWeight:'bold',
+                    fontSize:'14px'
+                }}>
+                    Exporter CSV
                 </a>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <CarteStats
-                    icone="📅"
-                    titre="Total événements"
-                    valeur={stats.totalEvenements}
-                    couleur="bg-blue-100"
-                />
-                <CarteStats
-                    icone="👥"
-                    titre="Total inscrits"
-                    valeur={stats.totalInscrits}
-                    couleur="bg-green-100"
-                />
-                <CarteStats
-                    icone="🪑"
-                    titre="Places libres"
-                    valeur={stats.placesLibres}
-                    couleur="bg-yellow-100"
-                />
-                <CarteStats
-                    icone="🏆"
-                    titre="Événement populaire"
-                    valeur={stats.plusPopulaire}
-                    couleur="bg-purple-100"
-                    petit={true}
-                />
+            <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:'20px', marginBottom:'30px'}}>
+                <Carte titre="Total evenements" valeur={stats.totalEvenements} couleur="#dbeafe" icone="📅" />
+                <Carte titre="Total inscrits" valeur={stats.totalInscrits} couleur="#dcfce7" icone="👥" />
+                <Carte titre="Places libres" valeur={stats.placesLibres} couleur="#fef9c3" icone="🪑" />
+                <Carte titre="Evenement populaire" valeur={stats.plusPopulaire} couleur="#f3e8ff" icone="🏆" petit={true} />
             </div>
 
-            <div className="bg-white rounded-xl shadow p-6">
-                <Bar data={chartData} options={chartOptions} />
+            <div style={{background:'white', borderRadius:'12px', padding:'25px', boxShadow:'0 2px 8px rgba(0,0,0,0.1)'}}>
+                <Bar data={data} options={options} />
             </div>
 
         </div>
     );
 }
 
-function CarteStats({ icone, titre, valeur, couleur, petit = false }) {
+function Carte({ titre, valeur, couleur, icone, petit }) {
     return (
-        <div className={`${couleur} rounded-xl shadow p-5 flex flex-col items-center`}>
-            <span className="text-4xl mb-2">{icone}</span>
-            <p className="text-gray-500 text-sm text-center">{titre}</p>
-            <p className={`font-bold text-[#1e3a5f] text-center mt-1
-                          ${petit ? 'text-base' : 'text-3xl'}`}>
-                {valeur}
-            </p>
+        <div style={{
+            background: couleur,
+            borderRadius: '12px',
+            padding: '20px',
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+        }}>
+            <div style={{fontSize:'36px', marginBottom:'8px'}}>{icone}</div>
+            <p style={{color:'#6b7280', fontSize:'13px', margin:'0 0 8px 0'}}>{titre}</p>
+            <p style={{
+                color:'#1e3a5f',
+                fontSize: petit ? '16px' : '28px',
+                fontWeight:'bold',
+                margin:0
+            }}>{valeur}</p>
         </div>
     );
 }
