@@ -6,6 +6,8 @@ use App\Models\Inscription;
 use App\Models\Evenement;
 use App\Models\User;
 use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\EvenementController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,57 +31,42 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+// Routes Dashboard - Salma
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+         ->name('admin.dashboard');
+    Route::get('/admin/export-csv', [DashboardController::class, 'exportCsv'])
+         ->name('admin.export');
+});
 
+// Routes Inscription
 Route::post('/inscription/{eventId}', [InscriptionController::class, 'store']);
 Route::delete('/inscription/{id}', [InscriptionController::class, 'destroy']);
+
 Route::get('/test-annulation/{id}', function ($id) {
-
     $service = new InscriptionService();
-
     $service->annuler($id);
-
     return "Annulation effectuée";
 });
 
 Route::get('/voir-inscriptions', function () {
-
     return Inscription::all();
 });
+
 Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) {
-
-    $service = new \App\Services\InscriptionService();
-
-    $user = \App\Models\User::findOrFail($userId);
-    $event = \App\Models\Evenement::findOrFail($eventId);
-
-    return $service->inscrire($user, $event);
-});
-Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) {
-
     try {
         $service = new \App\Services\InscriptionService();
-
         $user = \App\Models\User::findOrFail($userId);
         $event = \App\Models\Evenement::findOrFail($eventId);
-
         return $service->inscrire($user, $event);
-
     } catch (\Throwable $e) {
         return $e->getMessage();
     }
 });
-Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) {
 
-    $service = new \App\Services\InscriptionService();
-
-    $user = \App\Models\User::findOrFail($userId);
-    $event = \App\Models\Evenement::findOrFail($eventId);
-
-    return $service->inscrire($user, $event);
-});
-use App\Http\Controllers\Admin\EvenementController;
-
+// Routes Admin - Hanane
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('evenements', EvenementController::class);
 });
+
+require __DIR__.'/auth.php';
