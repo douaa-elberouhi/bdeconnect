@@ -78,3 +78,8 @@ Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) 
 
     return $service->inscrire($user, $event);
 });
+use App\Http\Controllers\Admin\EvenementController;
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('evenements', EvenementController::class);
+});
