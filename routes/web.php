@@ -1,13 +1,14 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\EtudiantController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\EvenementController;
 use App\Services\InscriptionService;
 use App\Models\Inscription;
 use App\Models\Evenement;
 use App\Models\User;
-use App\Http\Controllers\InscriptionController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Admin\EvenementController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,9 +27,23 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
+    Route::get('/calendrier', [EtudiantController::class, 'calendrier'])
+        ->name('etudiant.calendrier');
+    Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])
+        ->name('etudiant.inscriptions');
+
+    Route::post('/inscriptions/{evenement}', [InscriptionController::class, 'store'])
+        ->name('inscriptions.store');
+    Route::delete('/inscriptions/{inscription}', [InscriptionController::class, 'destroy'])
+        ->name('inscriptions.destroy');
 });
 
 // Routes Dashboard - Salma
@@ -39,9 +54,14 @@ Route::middleware(['auth'])->group(function () {
          ->name('admin.export');
 });
 
-// Routes Inscription
-Route::post('/inscription/{eventId}', [InscriptionController::class, 'store']);
-Route::delete('/inscription/{id}', [InscriptionController::class, 'destroy']);
+// Routes Admin - Hanane
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('evenements', EvenementController::class);
+});
+
+Route::get('/voir-inscriptions', function () {
+    return Inscription::all();
+});
 
 Route::get('/test-annulation/{id}', function ($id) {
     $service = new InscriptionService();
@@ -49,24 +69,28 @@ Route::get('/test-annulation/{id}', function ($id) {
     return "Annulation effectuée";
 });
 
-Route::get('/voir-inscriptions', function () {
-    return Inscription::all();
-});
-
 Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) {
     try {
-        $service = new \App\Services\InscriptionService();
-        $user = \App\Models\User::findOrFail($userId);
-        $event = \App\Models\Evenement::findOrFail($eventId);
+        $service = new InscriptionService();
+        $user = User::findOrFail($userId);
+        $event = Evenement::findOrFail($eventId);
         return $service->inscrire($user, $event);
     } catch (\Throwable $e) {
         return $e->getMessage();
     }
 });
 
-// Routes Admin - Hanane
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('evenements', EvenementController::class);
+Route::get('/create-event-test', function () {
+    Evenement::create([
+        'titre' => 'Test RG3',
+        'description' => 'Test liste attente',
+        'date_debut' => '2026-05-15 18:00:00',
+        'date_fin' => '2026-05-15 23:00:00',
+        'capacite_max' => 1,
+        'prix' => 0,
+        'statut' => 'actif'
+    ]);
+    return "Event test créé";
 });
 
 require __DIR__.'/auth.php';
