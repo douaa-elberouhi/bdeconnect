@@ -22,40 +22,29 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
 
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
+        return app(EtudiantController::class)->dashboard();
+    })->name('dashboard');
 
-    Route::get('/calendrier', [EtudiantController::class, 'calendrier'])
-        ->name('etudiant.calendrier');
-    Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])
-        ->name('etudiant.inscriptions');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::post('/inscriptions/{evenement}', [InscriptionController::class, 'store'])
-        ->name('inscriptions.store');
-    Route::delete('/inscriptions/{inscription}', [InscriptionController::class, 'destroy'])
-        ->name('inscriptions.destroy');
+    Route::get('/calendrier', [EtudiantController::class, 'calendrier'])->name('etudiant.calendrier');
+    Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])->name('etudiant.inscriptions');
+
+    Route::post('/inscriptions/{evenement}', [InscriptionController::class, 'store'])->name('inscriptions.store');
+    Route::delete('/inscriptions/{inscription}', [InscriptionController::class, 'destroy'])->name('inscriptions.destroy');
 });
 
-// Routes Dashboard - Salma
-Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])
-         ->name('admin.dashboard');
-    Route::get('/admin/export-csv', [DashboardController::class, 'exportCsv'])
-         ->name('admin.export');
-});
-
-// Routes Admin - Hanane
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/export-csv', [DashboardController::class, 'exportCsv'])->name('export');
     Route::resource('evenements', EvenementController::class);
 });
 
@@ -65,8 +54,9 @@ Route::get('/voir-inscriptions', function () {
 
 Route::get('/test-annulation/{id}', function ($id) {
     $service = new InscriptionService();
-    $service->annuler($id);
-    return "Annulation effectuée";
+    $service->annuler(\App\Models\Inscription::findOrFail($id));
+
+    return 'Annulation effectuée';
 });
 
 Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) {
@@ -74,6 +64,7 @@ Route::get('/test-inscription/{eventId}/{userId}', function ($eventId, $userId) 
         $service = new InscriptionService();
         $user = User::findOrFail($userId);
         $event = Evenement::findOrFail($eventId);
+
         return $service->inscrire($user, $event);
     } catch (\Throwable $e) {
         return $e->getMessage();
@@ -88,9 +79,10 @@ Route::get('/create-event-test', function () {
         'date_fin' => '2026-05-15 23:00:00',
         'capacite_max' => 1,
         'prix' => 0,
-        'statut' => 'actif'
+        'statut' => 'actif',
     ]);
-    return "Event test créé";
+
+    return 'Event test créé';
 });
 
 require __DIR__.'/auth.php';

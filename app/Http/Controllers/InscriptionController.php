@@ -12,24 +12,26 @@ class InscriptionController extends Controller
     public function __construct(private InscriptionService $service) {}
 
     public function store(Evenement $evenement)
-{
-    try {
-        $inscription = $this->service->inscrire(auth()->user(), $evenement);
+    {
+        try {
+            $inscription = $this->service->inscrire(auth()->user(), $evenement);
 
-        return back()->with('success', 'Inscription : ' . $inscription);
-
-    } catch (\Exception $e) {
-
-        return back()->withErrors([
-            'inscription' => $e->getMessage()
-        ]);
+            return back()->with('success', 'Inscription : ' . $inscription);
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'inscription' => $e->getMessage(),
+            ]);
+        }
     }
-}
 
- public function destroy(Inscription $inscription)
-{
-    $this->service->annuler($inscription);
+    public function destroy(Inscription $inscription)
+    {
+        if ($inscription->user_id !== auth()->id() && ! auth()->user()->isAdmin()) {
+            abort(403);
+        }
 
-    return back()->with('success', 'Inscription annulée.');
-}
+        $this->service->annuler($inscription);
+
+        return back()->with('success', 'Inscription annulée.');
+    }
 }

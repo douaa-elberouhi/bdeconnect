@@ -4,7 +4,7 @@ import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function Dashboard({ stats, graphique }) {
+export default function Dashboard({ stats = {}, graphique = [] }) {
     const chartData = {
         labels: graphique.map(item => item.evenement),
         datasets: [{
@@ -34,10 +34,10 @@ export default function Dashboard({ stats, graphique }) {
                 </a>
             </div>
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px'}}>
-                <CarteStats titre="Total evenements" valeur={stats.totalEvenements} couleur="#dbeafe" />
-                <CarteStats titre="Total inscrits" valeur={stats.totalInscrits} couleur="#dcfce7" />
-                <CarteStats titre="Places libres" valeur={stats.placesLibres} couleur="#fef9c3" />
-                <CarteStats titre="Evenement populaire" valeur={stats.plusPopulaire} couleur="#f3e8ff" />
+                <CarteStats titre="Total evenements" valeur={stats.totalEvenements ?? 0} couleur="#dbeafe" />
+                <CarteStats titre="Total inscrits" valeur={stats.totalInscrits ?? 0} couleur="#dcfce7" />
+                <CarteStats titre="Places libres" valeur={stats.placesLibres ?? 0} couleur="#fef9c3" />
+                <CarteStats titre="Evenement populaire" valeur={stats.plusPopulaire ?? 'Aucun'} couleur="#f3e8ff" />
             </div>
             <div style={{background: 'white', borderRadius: '12px', padding: '20px'}}>
                 <Bar data={chartData} options={chartOptions} />

@@ -10,4 +10,9 @@ export default defineConfig({
         }),
         react(),
     ],
+    server: {
+        port: 5173,
+        /** Si 5173 est déjà pris (autre `npm run dev`), Vite essaie le port suivant. */
+        strictPort: false,
+    },
 });
