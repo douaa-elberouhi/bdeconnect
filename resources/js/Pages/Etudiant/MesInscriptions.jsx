@@ -1,24 +1,22 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import BdeConnectLayout from '@/Layouts/BdeConnectLayout';
 
 function StatutBadge({ statut }) {
-
     const styles = {
-        'confirmee': 'bg-green-100 text-green-700',
-        'liste_attente': 'bg-orange-100 text-orange-700',
-        'annulee': 'bg-red-100 text-red-600',
+        confirmee: 'bg-emerald-100 text-emerald-800',
+        liste_attente: 'bg-orange-100 text-orange-800',
+        annulee: 'bg-red-100 text-red-700',
     };
 
     const labels = {
-        'confirmee': '✅ Confirmée',
-        'liste_attente': "⏳ Liste d'attente",
-        'annulee': '❌ Annulée',
+        confirmee: '✅ Confirmée',
+        liste_attente: "⏳ Liste d'attente",
+        annulee: '❌ Annulée',
     };
 
     return (
-        <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${styles[statut]}`}
-        >
-            {labels[statut]}
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${styles[statut] || 'bg-stone-100'}`}>
+            {labels[statut] || statut}
         </span>
     );
 }
@@ -26,86 +24,75 @@ function StatutBadge({ statut }) {
 export default function MesInscriptions({ inscriptions }) {
     const handleAnnuler = (id) => {
         if (confirm('Voulez-vous vraiment annuler ?')) {
-          router.delete(`/inscriptions/${id}`, {
-    preserveScroll: true,
-
-    onSuccess: () => {
-        router.reload();
-    },
-
-    onError: (errors) => {
-        console.log(errors);
-    }
-});
+            router.delete(route('inscriptions.destroy', id), {
+                preserveScroll: true,
+                onSuccess: () => router.reload(),
+                onError: (errors) => console.log(errors),
+            });
         }
     };
 
     return (
-        <>
+        <BdeConnectLayout>
             <Head title="Mes inscriptions" />
-            <div className="min-h-screen bg-gray-50">
-                <nav className="bg-[#1e3a5f] text-white px-6 py-4 flex justify-between items-center">
-                    <h1 className="text-xl font-bold">🎓 BDEConnect</h1>
-                    <div className="flex gap-4 text-sm">
-                        <a href="/calendrier" className="hover:underline">Calendrier</a>
-                        <a href="/mes-inscriptions" className="font-semibold underline">Mes inscriptions</a>
+            <h1 className="text-3xl font-semibold tracking-tight text-stone-900">Mes inscriptions</h1>
+            <p className="mt-2 text-stone-600">Suivez le statut de vos participations aux événements.</p>
+
+            <div className="mt-8">
+                {inscriptions.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-stone-200 bg-white py-20 text-center text-stone-400">
+                        <p className="mb-4 text-5xl">📭</p>
+                        <p>Aucune inscription.</p>
+                        <Link
+                            href={route('etudiant.calendrier')}
+                            className="mt-4 inline-block text-sm font-medium text-orange-600 hover:text-orange-700"
+                        >
+                            Voir les événements →
+                        </Link>
                     </div>
-                </nav>
-                <div className="max-w-4xl mx-auto px-4 py-8">
-                    <h2 className="text-2xl font-bold text-[#1e3a5f] mb-6">📋 Mes inscriptions</h2>
-
-                    {inscriptions.length === 0 ? (
-                        <div className="text-center py-20 text-gray-400">
-                            <p className="text-5xl mb-4">📭</p>
-                            <p>Aucune inscription.</p>
-                            <a href="/calendrier" className="mt-4 inline-block text-[#1e3a5f] underline">Voir les événements →</a>
-                        </div>
-                    ) : (
-                        <div className="bg-white rounded-2xl shadow overflow-hidden">
-                            <table className="w-full text-sm">
-                                <thead className="bg-[#1e3a5f] text-white">
-                                    <tr>
-                                        <th className="text-left px-6 py-3">Événement</th>
-                                        <th className="text-left px-6 py-3">Date inscription</th>
-                                        <th className="text-left px-6 py-3">Statut</th>
-                                        <th className="text-left px-6 py-3">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100">
-    {inscriptions.map(ins => (
-        <tr key={ins.id} className="hover:bg-gray-50">
-            <td className="px-6 py-4 font-medium">
-                {ins.evenement?.titre}
-            </td>
-
-            <td className="px-6 py-4 text-gray-500">
-                {new Date(ins.created_at).toLocaleDateString('fr-FR')}
-            </td>
-
-            <td className="px-6 py-4">
-                <StatutBadge statut={ins.statut} />
-            </td>
-
-            <td className="px-6 py-4">
-                {ins.statut !== 'annulee' ? (
-                    <button
-                        onClick={() => handleAnnuler(ins.id)}
-                        className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium"
-                    >
-                        Annuler
-                    </button>
                 ) : (
-                    <span className="text-gray-300">—</span>
+                    <div className="overflow-hidden rounded-2xl border border-stone-100 bg-white shadow-sm">
+                        <table className="w-full text-sm">
+                            <thead className="border-b border-stone-100 bg-stone-50 text-left text-stone-600">
+                                <tr>
+                                    <th className="px-6 py-3 font-medium">Événement</th>
+                                    <th className="px-6 py-3 font-medium">Date inscription</th>
+                                    <th className="px-6 py-3 font-medium">Statut</th>
+                                    <th className="px-6 py-3 font-medium">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-stone-100">
+                                {inscriptions.map((ins) => (
+                                    <tr key={ins.id} className="hover:bg-stone-50/80">
+                                        <td className="px-6 py-4 font-medium text-stone-900">{ins.evenement?.titre}</td>
+                                        <td className="px-6 py-4 text-stone-500">
+                                            {ins.date_inscription
+                                                ? new Date(ins.date_inscription).toLocaleDateString('fr-FR')
+                                                : new Date(ins.created_at).toLocaleDateString('fr-FR')}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <StatutBadge statut={ins.statut} />
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {ins.statut !== 'annulee' ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAnnuler(ins.id)}
+                                                    className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700"
+                                                >
+                                                    Annuler
+                                                </button>
+                                            ) : (
+                                                <span className="text-stone-300">—</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
-            </td>
-        </tr>
-    ))}
-</tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
             </div>
-        </>
+        </BdeConnectLayout>
     );
 }

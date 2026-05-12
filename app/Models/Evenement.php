@@ -32,7 +32,7 @@ class Evenement extends Model
     public function inscriptionsConfirmees(): HasMany
     {
         return $this->hasMany(Inscription::class)
-                    ->where('statut', 'confirmée');
+            ->where('statut', 'confirmee');
     }
 
     public function estPasse(): bool

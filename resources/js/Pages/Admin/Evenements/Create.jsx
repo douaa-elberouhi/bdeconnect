@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import BdeConnectLayout from '@/Layouts/BdeConnectLayout';
 
 export default function Create() {
     const [form, setForm] = useState({
@@ -16,74 +17,90 @@ export default function Create() {
             alert('Veuillez remplir tous les champs obligatoires');
             return;
         }
-        router.post('/admin/evenements', form);
+        router.post(route('admin.evenements.store'), form);
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
-            <Head title="Créer Événement" />
-            <div className="max-w-2xl mx-auto bg-white rounded shadow p-6">
-                <h1 className="text-2xl font-bold text-[#1e3a5f] mb-6">
-                    Créer un Événement
-                </h1>
-                <div className="space-y-4">
+        <BdeConnectLayout>
+            <Head title="Créer un événement" />
+            <div className="mx-auto max-w-2xl rounded-2xl border border-stone-100 bg-white p-6 shadow-sm sm:p-8">
+                <h1 className="text-2xl font-semibold text-stone-900">Créer un événement</h1>
+                <div className="mt-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium mb-1">Titre *</label>
-                        <input type="text"
-                            className="w-full border rounded p-2"
+                        <label className="mb-1 block text-sm font-medium text-stone-700">Titre *</label>
+                        <input
+                            type="text"
+                            className="w-full rounded-xl border border-stone-200 px-3 py-2 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
                             value={form.titre}
-                            onChange={e => setForm({...form, titre: e.target.value})} />
+                            onChange={(e) => setForm({ ...form, titre: e.target.value })}
+                        />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1">Description</label>
-                        <textarea className="w-full border rounded p-2" rows="3"
+                        <label className="mb-1 block text-sm font-medium text-stone-700">Description</label>
+                        <textarea
+                            className="w-full rounded-xl border border-stone-200 px-3 py-2 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
+                            rows="3"
                             value={form.description}
-                            onChange={e => setForm({...form, description: e.target.value})} />
+                            onChange={(e) => setForm({ ...form, description: e.target.value })}
+                        />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Date début *</label>
-                            <input type="datetime-local"
-                                className="w-full border rounded p-2"
+                            <label className="mb-1 block text-sm font-medium text-stone-700">Date début *</label>
+                            <input
+                                type="datetime-local"
+                                className="w-full rounded-xl border border-stone-200 px-3 py-2 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
                                 value={form.date_debut}
-                                onChange={e => setForm({...form, date_debut: e.target.value})} />
+                                onChange={(e) => setForm({ ...form, date_debut: e.target.value })}
+                            />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">Date fin *</label>
-                            <input type="datetime-local"
-                                className="w-full border rounded p-2"
+                            <label className="mb-1 block text-sm font-medium text-stone-700">Date fin *</label>
+                            <input
+                                type="datetime-local"
+                                className="w-full rounded-xl border border-stone-200 px-3 py-2 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
                                 value={form.date_fin}
-                                onChange={e => setForm({...form, date_fin: e.target.value})} />
+                                onChange={(e) => setForm({ ...form, date_fin: e.target.value })}
+                            />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">Capacité max *</label>
-                            <input type="number"
-                                className="w-full border rounded p-2"
+                            <label className="mb-1 block text-sm font-medium text-stone-700">Capacité max *</label>
+                            <input
+                                type="number"
+                                className="w-full rounded-xl border border-stone-200 px-3 py-2 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
                                 value={form.capacite_max}
-                                onChange={e => setForm({...form, capacite_max: e.target.value})} />
+                                onChange={(e) => setForm({ ...form, capacite_max: e.target.value })}
+                            />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">Prix (MAD)</label>
-                            <input type="number"
-                                className="w-full border rounded p-2"
+                            <label className="mb-1 block text-sm font-medium text-stone-700">Prix (MAD)</label>
+                            <input
+                                type="number"
+                                className="w-full rounded-xl border border-stone-200 px-3 py-2 focus:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-400"
                                 value={form.prix}
-                                onChange={e => setForm({...form, prix: e.target.value})} />
+                                onChange={(e) => setForm({ ...form, prix: e.target.value })}
+                            />
                         </div>
                     </div>
-                    <div className="flex gap-3 mt-6">
-                        <button onClick={handleSubmit}
-                            className="bg-[#1e3a5f] text-white px-6 py-2 rounded hover:bg-blue-800">
+                    <div className="mt-6 flex gap-3">
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            className="rounded-full bg-orange-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-orange-600"
+                        >
                             Enregistrer
                         </button>
-                        <a href="/admin/evenements"
-                            className="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500">
+                        <Link
+                            href={route('admin.dashboard')}
+                            className="rounded-full border border-stone-200 px-6 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50"
+                        >
                             Annuler
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
-        </div>
+        </BdeConnectLayout>
     );
 }

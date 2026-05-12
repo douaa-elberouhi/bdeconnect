@@ -4,12 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Models\Evenement;
 use App\Models\Inscription;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 
 class EtudiantController extends Controller
 {
+    public function dashboard()
+    {
+        $user = Auth::user();
+
+        $inscriptionsActives = Inscription::where('user_id', $user->id)
+            ->whereIn('statut', ['confirmee', 'liste_attente'])
+            ->count();
+
+        $prochainsEvenements = Evenement::where('statut', 'actif')
+            ->where('date_fin', '>=', now())
+            ->orderBy('date_debut')
+            ->take(5)
+            ->get()
+            ->map(function (Evenement $e) {
+                return [
+                    'id' => $e->id,
+                    'titre' => $e->titre,
+                    'date_debut' => $e->date_debut->toIso8601String(),
+                    'prix' => (float) $e->prix,
+                ];
+            });
+
+        return Inertia::render('Etudiant/Dashboard', [
+            'inscriptionsActives' => $inscriptionsActives,
+            'prochainsEvenements' => $prochainsEvenements,
+        ]);
+    }
+
     // Calendrier public des événements futurs
     public function calendrier()
     {

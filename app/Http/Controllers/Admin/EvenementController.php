@@ -12,15 +12,7 @@ class EvenementController extends Controller
 {
     public function index()
     {
-        $evenements = Evenement::withCount([
-            'inscriptions as inscrits_count' => function($q) {
-                $q->where('statut', 'confirmée');
-            }
-        ])->get();
-
-        return Inertia::render('Admin/Evenements/Index', [
-            'evenements' => $evenements
-        ]);
+        return redirect()->route('admin.dashboard');
     }
 
     public function create()
@@ -40,7 +32,7 @@ class EvenementController extends Controller
 
         Evenement::create($request->all());
 
-        return redirect()->route('admin.evenements.index');
+        return redirect()->route('admin.dashboard')->with('success', 'Événement créé.');
     }
 
     public function show($id)
@@ -48,7 +40,7 @@ class EvenementController extends Controller
         $evenement = Evenement::findOrFail($id);
         $confirmes = Inscription::with('user')
             ->where('evenement_id', $id)
-            ->where('statut', 'confirmée')
+            ->where('statut', 'confirmee')
             ->get();
         $attente = Inscription::with('user')
             ->where('evenement_id', $id)
@@ -89,12 +81,13 @@ class EvenementController extends Controller
 
         $evenement->update($request->all());
 
-        return redirect()->route('admin.evenements.index');
+        return redirect()->route('admin.dashboard')->with('success', 'Événement mis à jour.');
     }
 
     public function destroy($id)
     {
         Evenement::findOrFail($id)->delete();
-        return redirect()->route('admin.evenements.index');
+
+        return redirect()->route('admin.dashboard')->with('success', 'Événement supprimé.');
     }
 }
