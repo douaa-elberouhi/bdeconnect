@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\EtudiantController;
@@ -27,31 +26,20 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
-
-    Route::get('/calendrier', [EtudiantController::class, 'calendrier'])
-        ->name('etudiant.calendrier');
-    Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])
-        ->name('etudiant.inscriptions');
-
-    Route::post('/inscriptions/{evenement}', [InscriptionController::class, 'store'])
-        ->name('inscriptions.store');
-    Route::delete('/inscriptions/{inscription}', [InscriptionController::class, 'destroy'])
-        ->name('inscriptions.destroy');
+    Route::get('/calendrier', [EtudiantController::class, 'calendrier'])->name('etudiant.calendrier');
+    Route::get('/mes-inscriptions', [EtudiantController::class, 'mesInscriptions'])->name('etudiant.inscriptions');
+    Route::post('/inscriptions/{evenement}', [InscriptionController::class, 'store'])->name('inscriptions.store');
+    Route::delete('/inscriptions/{inscription}', [InscriptionController::class, 'destroy'])->name('inscriptions.destroy');
 });
 
 // Routes Dashboard - Salma
 Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])
-         ->name('admin.dashboard');
-    Route::get('/admin/export-csv', [DashboardController::class, 'exportCsv'])
-         ->name('admin.export');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/export-csv', [DashboardController::class, 'exportCsv'])->name('admin.export');
 });
 
 // Routes Admin - Hanane
